@@ -72,22 +72,12 @@ exec(win, fail, 'FileTransfer', 'upload',
                 for(var key in params) {
                     formData.append(key,params[key]);
                 }
-
-                WinJS.xhr({ type: "POST", url: server, data: formData, headers: headers }).then(function (response) {
-                    storageFile.getBasicPropertiesAsync().done(function (basicProperties) {
-
-                        Windows.Storage.FileIO.readBufferAsync(storageFile).done(function (buffer) {
-                            var dataReader = Windows.Storage.Streams.DataReader.fromBuffer(buffer);
-                            var fileContent = dataReader.readString(buffer.length);
-                            dataReader.close();
-                            var ftResult = new FileUploadResult();
-                            ftResult.bytesSent = basicProperties.size;
-                            ftResult.responseCode = response.status;
-                            ftResult.response = fileContent;
-                            successCallback && successCallback(ftResult);
-                        });
-
-                    });
+                WinJS.xhr({ type: "POST", url: server, data: formData, headers: headers }).then(function (request) {
+                    var result = new FileUploadResult();
+                    result.bytesSent = blob.size;
+                    result.responseCode = request.status;
+                    result.response = request.response;
+                    successCallback && successCallback(result);
                 }, function () {
                     error && error(FileTransferError.INVALID_URL_ERR);
                 });
